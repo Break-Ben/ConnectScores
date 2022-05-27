@@ -1,5 +1,5 @@
 //Tooltip 1.2
-let round = (num) => Math.round(num*100)/100
+let round = num => Math.round(num*100)/100
 Highcharts.charts.forEach(e => {
     if(e) {
         options = e.options
