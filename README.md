@@ -1,5 +1,5 @@
 # Connect Scores
-Scripts that scrape connect for the marks on a test. Paste them into the devtools console _(ctrl+shift+i or cmd+option+i)_
+Scripts that improve connect's assessment outlines. Paste them into the devtools console on the assessment outlines page _(ctrl+shift+i or cmd+option+i)_
 
 **Chart:** Creates new charts that automatically combine all test from a class into one. Also adds features like tooltips and exporting to images
 
