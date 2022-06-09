@@ -1,25 +1,22 @@
-//Chart 1.0
+//Chart 1.2
+let round = num => Math.round(num*100)/100
 const createCharts = async () => {
-    // Open all triggers and wait 7s
+
     var triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
     for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
-    await new Promise(res => setTimeout(res, 7000));
+    await new Promise(res => setTimeout(res, 8000));
 
-    //For each chart
     const Subjects = []
     for (let i = 0; i < Highcharts.charts.length; i++) {
-        const e = Highcharts.charts[i]
-        if (e) {
-            const scores = e.xAxis[0].series[0].data[0].options
-            const shortcut = e.container.parentElement.parentElement.parentElement.parentElement //To save a bunch of .parentElements
-            //If overall score
+        const chart = Highcharts.charts[i]
+        if (chart) {
+            const scores = chart.xAxis[0].series[0].data[0].options
+            const shortcut = chart.container.parentElement.parentElement.parentElement.parentElement
             if (!shortcut.firstChild.innerText) {
-                //Add subject name
                 shortcut.parentElement.parentElement.parentElement.parentElement.id = 'overallChart' + i
-                //shortcut
                 Subjects.push([shortcut.parentElement.parentElement.parentElement.parentElement.firstChild.innerText, {
                     testName: "Overall",
-                    score: e.xAxis[0].series[1].options.data[0],
+                    score: chart.xAxis[0].series[1].options.data[0],
                     min: scores.low,
                     q1: scores.q1,
                     med: scores.median,
@@ -29,13 +26,11 @@ const createCharts = async () => {
             }
             else {
                 const subjectName = shortcut.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.innerText
-                //If subject name exists
                 for (let i2 = 0; i2 < Subjects.length; i2++) {
                     if (Subjects[i2][0] == subjectName) {
-                        //Push test name + scores
                         Subjects[i2].push({
                             testName: shortcut.firstChild.innerText,
-                            score: e.xAxis[0].series[1].options.data[0],
+                            score: chart.xAxis[0].series[1].options.data[0],
                             min: scores.low,
                             q1: scores.q1,
                             med: scores.median,
@@ -49,14 +44,12 @@ const createCharts = async () => {
     }
     console.log(Subjects);
 
-    //For each subject
     for (let subjectIndex = 0; subjectIndex < Subjects.length; subjectIndex++) {
-        // Variables
+
         subject = Subjects[subjectIndex]
         testNames = []
         graphPoints = []
         yourPoints = []
-        //For each test
         for (let testIndex = 1; testIndex < subject.length; testIndex++) {
             test = subject[testIndex]
             testNames.push(test.testName)
@@ -66,7 +59,6 @@ const createCharts = async () => {
         overall = yourPoints[0][1]
         median = graphPoints[0][2]
 
-        // Create chart
         Highcharts.chart('overallChart' + subjectIndex, {
             chart: {
                 type: 'boxplot'
@@ -83,13 +75,27 @@ const createCharts = async () => {
                     color: 'black'
                 }
             },
+            exporting: {
+                filename: subject[0]
+            },
             legend: {
                 enabled: false
+            },
+            tooltip: {
+                formatter: function () {
+                    if(this.series.index == 0) {
+                        const points = this.point.options
+                        return '<b>Lowest Score:</b> ' + round(points.low) + '<br><b>Lower Quartile:</b> ' + round(points.q1) + '<br><b>Median:</b> ' + round(points.median) + '<br><b>Upper Quartile:</b> ' + round(points.q3) + '<br><b>Highest Score:</b> ' + round(points.high);
+                    }
+                    else {
+                        return '<b>Your Score:</b> ' + this.y
+                    }
+                },
             },
             xAxis: {
                 categories: testNames,
                 title: {
-                    text: 'Tests'
+                    enabled: false
                 }
             },
             yAxis: {
@@ -127,9 +133,8 @@ const createCharts = async () => {
             series: [{
                 name: 'Scores',
                 data: graphPoints,
-                tooltip: {
-                    headerFormat: '<em>Test {point.key-1}</em><br/>'
-                }
+                maxPointWidth: 30,
+                fill: 'transparent'
             }, {
                 name: 'Scores',
                 color: '#3090F0',
@@ -139,14 +144,10 @@ const createCharts = async () => {
                     fillColor: 'white',
                     lineWidth: 1,
                     lineColor: '#3090F0'
-                },
-                tooltip: {
-                    pointFormat: 'Your score: {point.y}'
                 }
             }]
         });
     }
-    //Close triggers
     triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
     for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
 };
