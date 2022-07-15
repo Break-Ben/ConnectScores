@@ -1,10 +1,22 @@
-//Chart 1.4
+//Chart 1.5
 const GraphPoints = []
 const YourPoints = []
 const TestNames = []
 const ExtraData = []
 
 let round = num => Math.round(num*100)/100
+function injectCSS() {
+    var style = document.createElement('style');
+    style.innerHTML = `
+    .eds.cvr .eds-c-tile {
+        border-radius: 20px;
+    }
+    .highcharts-container, .vaadin-chart {
+        border-radius: 20px;
+    }
+    `;
+    document.head.appendChild(style);
+}
 let toggleTriggers = () => {
     var triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
     for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
@@ -15,11 +27,10 @@ function createCharts() {
         subjectName = ExtraData[subjectIndex][0]
         overall = YourPoints[subjectIndex][0]
         median = GraphPoints[subjectIndex][0][2]
+        yourScores = YourPoints[subjectIndex];
+        yourScores[0] = null;
 
         Highcharts.chart('overallChart' + subjectIndex, {
-            chart: {
-                type: 'boxplot'
-            },
             title: {
                 text: subjectName,
                 style: {
@@ -35,7 +46,7 @@ function createCharts() {
             exporting: {
                 filename: subjectName,
                 sourceWidth: 1100,
-                sourceHeight: 400
+                sourceHeight: 400,
             },
             legend: {
                 enabled: false
@@ -60,7 +71,7 @@ function createCharts() {
                         else {
                             letterGrade = ExtraData[subjectIndex][1]
                             if(letterGrade != '') {
-                                tooltip += '<br><b>Letter Grade:</b> ' + ExtraData[subjectIndex][1]
+                                tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
                             }
                         }
                         return tooltip
@@ -97,7 +108,7 @@ function createCharts() {
                     width: 1,
                     zIndex: 4,
                     label: {
-                        text: 'Median score: {overall}',
+                        text: 'Median score: {median}',
                         align: 'center',
                         style: {
                             color: 'gray'
@@ -106,18 +117,28 @@ function createCharts() {
                 }]
             },
             series: [{
-                name: 'Scores',
+                name: 'Graph Points',
+                type: 'boxplot',
                 data: GraphPoints[subjectIndex],
                 maxPointWidth: 30,
                 fill: 'transparent'
             }, {
-                name: 'Scores',
+                name: 'Your Scores',
                 color: '#3090F0',
-                type: 'scatter',
-                data: YourPoints[subjectIndex],
+                data: yourScores,
                 marker: {
                     fillColor: 'white',
-                    lineWidth: 1,
+                    lineWidth: 2,
+                    lineColor: '#3090F0'
+                }
+            }, {
+                name: 'Your Scores',
+                color: '#3090F0',
+                data: [overall],
+                marker: {
+                    symbol: 'circle',
+                    fillColor: 'white',
+                    lineWidth: 2,
                     lineColor: '#3090F0'
                 }
             }]
@@ -157,4 +178,6 @@ const scrape = async () => {
     }
     createCharts()
 }
+
+injectCSS()
 scrape()
