@@ -5,6 +5,12 @@ const TestNames = []
 const ExtraData = []
 
 let round = num => Math.round(num*100)/100
+
+let toggleTriggers = () => {
+    var triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
+    for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
+}
+
 function injectCSS() {
     var style = document.createElement('style');
     style.innerHTML = `
@@ -17,10 +23,7 @@ function injectCSS() {
     `;
     document.head.appendChild(style);
 }
-let toggleTriggers = () => {
-    var triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
-    for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
-}
+
 function createCharts() {
     for (let subjectIndex = 0; subjectIndex < ExtraData.length; subjectIndex++) {
         
@@ -78,6 +81,32 @@ function createCharts() {
                     }
                 },
             },
+            series: [{
+                name: 'Graph Points',
+                type: 'boxplot',
+                data: GraphPoints[subjectIndex],
+                maxPointWidth: 30,
+                fill: 'transparent'
+            }, {
+                name: 'Your Scores',
+                color: '#3090F0',
+                data: yourScores,
+                marker: {
+                    fillColor: 'white',
+                    lineWidth: 2,
+                    lineColor: '#3090F0'
+                }
+            }, {
+                name: 'Your Scores',
+                color: '#3090F0',
+                data: [overall],
+                marker: {
+                    symbol: 'circle',
+                    fillColor: 'white',
+                    lineWidth: 2,
+                    lineColor: '#3090F0'
+                }
+            }],
             xAxis: {
                 categories: TestNames[subjectIndex],
                 title: {
@@ -115,37 +144,12 @@ function createCharts() {
                         }
                     }
                 }]
-            },
-            series: [{
-                name: 'Graph Points',
-                type: 'boxplot',
-                data: GraphPoints[subjectIndex],
-                maxPointWidth: 30,
-                fill: 'transparent'
-            }, {
-                name: 'Your Scores',
-                color: '#3090F0',
-                data: yourScores,
-                marker: {
-                    fillColor: 'white',
-                    lineWidth: 2,
-                    lineColor: '#3090F0'
-                }
-            }, {
-                name: 'Your Scores',
-                color: '#3090F0',
-                data: [overall],
-                marker: {
-                    symbol: 'circle',
-                    fillColor: 'white',
-                    lineWidth: 2,
-                    lineColor: '#3090F0'
-                }
-            }]
+            }
         });
     }
     toggleTriggers()
 }
+
 const scrape = async () => {
     toggleTriggers()
     await new Promise(res => setTimeout(res, 8000));
