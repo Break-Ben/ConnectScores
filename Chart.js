@@ -1,13 +1,13 @@
-//Chart 1.5
+//Chart 1.5.1
 const GraphPoints = []
 const YourPoints = []
 const TestNames = []
 const ExtraData = []
 
-let round = num => Math.round(num*100)/100
+let round = num => Math.round(num * 100) / 100
 
 let toggleTriggers = () => {
-    var triggers = document.getElementsByClassName("v-button-eds-c-accordion__trigger")
+    var triggers = document.getElementsByClassName('v-button-eds-c-accordion__trigger')
     for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
 }
 
@@ -26,7 +26,7 @@ function injectCSS() {
 
 function createCharts() {
     for (let subjectIndex = 0; subjectIndex < ExtraData.length; subjectIndex++) {
-        
+
         subjectName = ExtraData[subjectIndex][0]
         overall = YourPoints[subjectIndex][0]
         median = GraphPoints[subjectIndex][0][2]
@@ -57,23 +57,23 @@ function createCharts() {
             tooltip: {
                 followPointer: true,
                 formatter: function () {
-                    if(this.series.index == 0) {
+                    if (this.series.index == 0) {
                         const points = this.point.options
-                        return '<b>Highest Score:</b> '  + round(points.high)
-                        +  '<br><b>Upper Quartile:</b> ' + round(points.q3) 
-                        +  '<br><b>Median:</b> '         + round(points.median) 
-                        +  '<br><b>Lower Quartile:</b> ' + round(points.q1) 
-                        +  '<br><b>Lowest Score:</b> '   + round(points.low);
+                        return '<b>Highest Score:</b> ' + round(points.high)
+                            + '<br><b>Upper Quartile:</b> ' + round(points.q3)
+                            + '<br><b>Median:</b> ' + round(points.median)
+                            + '<br><b>Lower Quartile:</b> ' + round(points.q1)
+                            + '<br><b>Lowest Score:</b> ' + round(points.low);
                     }
                     else {
                         tooltip = '<b>Your Score:</b> ' + this.y
                         weightedScoreIndex = this.series.yData.indexOf(this.y)
-                        if(weightedScoreIndex != 0) {
-                            tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex+1]
+                        if (weightedScoreIndex != 0) {
+                            tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex + 1]
                         }
                         else {
                             letterGrade = ExtraData[subjectIndex][1]
-                            if(letterGrade != '') {
+                            if (letterGrade != '') {
                                 tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
                             }
                         }
@@ -171,8 +171,14 @@ const scrape = async () => {
 
                 for (let subjectIndex = 0; subjectIndex < ExtraData.length; subjectIndex++) {
                     if (ExtraData[subjectIndex][0] == subjectName) {
+                        if (shortcut.firstChild.children[2]) {
+                            var testName = '<b>' + shortcut.firstChild.children[2].innerText + '</b> (' + shortcut.firstChild.children[1].innerText + ')'
+                        }
+                        else {
+                            var testName = '<b>' + shortcut.firstChild.children[1].innerText + '</b>'
+                        }
+                        TestNames[subjectIndex].push(testName)
                         ExtraData[subjectIndex].push(shortcut.children[2].firstChild.children[1].firstChild.innerText.replace('\nOut of ', '/'))
-                        TestNames[subjectIndex].push('<b>'+shortcut.firstChild.children[2].innerText +'</b> ('+shortcut.firstChild.children[1].innerText+')')
                         GraphPoints[subjectIndex].push([scores.low, scores.q1, scores.median, scores.q3, scores.high])
                         YourPoints[subjectIndex].push(chart.xAxis[0].series[1].options.data[0])
                     }
