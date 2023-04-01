@@ -1,4 +1,4 @@
-//Chart 1.5.1
+//Chart 1.6
 const GraphPoints = []
 const YourPoints = []
 const TestNames = []
@@ -12,7 +12,7 @@ let toggleTriggers = () => {
 }
 
 function injectCSS() {
-    var style = document.createElement('style');
+    var style = document.createElement('style')
     style.innerHTML = `
     .eds.cvr .eds-c-tile {
         border-radius: 20px;
@@ -20,8 +20,8 @@ function injectCSS() {
     .highcharts-container, .vaadin-chart {
         border-radius: 20px;
     }
-    `;
-    document.head.appendChild(style);
+    `
+    document.head.appendChild(style)
 }
 
 function createCharts() {
@@ -30,8 +30,8 @@ function createCharts() {
         subjectName = ExtraData[subjectIndex][0]
         overall = YourPoints[subjectIndex][0]
         median = GraphPoints[subjectIndex][0][2]
-        yourScores = YourPoints[subjectIndex];
-        yourScores[0] = null;
+        yourScores = YourPoints[subjectIndex]
+        yourScores[0] = null
 
         Highcharts.chart('overallChart' + subjectIndex, {
             title: {
@@ -63,15 +63,17 @@ function createCharts() {
                             + '<br><b>Upper Quartile:</b> ' + round(points.q3)
                             + '<br><b>Median:</b> ' + round(points.median)
                             + '<br><b>Lower Quartile:</b> ' + round(points.q1)
-                            + '<br><b>Lowest Score:</b> ' + round(points.low);
+                            + '<br><b>Lowest Score:</b> ' + round(points.low)
                     }
                     else {
                         tooltip = '<b>Your Score:</b> ' + this.y
                         weightedScoreIndex = this.series.yData.indexOf(this.y)
                         if (weightedScoreIndex != 0) {
-                            tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex + 1]
+                            tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex + 2]
                         }
                         else {
+                            progressGrade = ExtraData[subjectIndex][2]
+                            tooltip += '<br><b>Progress Grade:</b> ' + round(overall * progressGrade / 100) + '/' + progressGrade
                             letterGrade = ExtraData[subjectIndex][1]
                             if (letterGrade != '') {
                                 tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
@@ -81,32 +83,6 @@ function createCharts() {
                     }
                 },
             },
-            series: [{
-                name: 'Graph Points',
-                type: 'boxplot',
-                data: GraphPoints[subjectIndex],
-                maxPointWidth: 30,
-                fill: 'transparent'
-            }, {
-                name: 'Your Scores',
-                color: '#3090F0',
-                data: yourScores,
-                marker: {
-                    fillColor: 'white',
-                    lineWidth: 2,
-                    lineColor: '#3090F0'
-                }
-            }, {
-                name: 'Your Scores',
-                color: '#3090F0',
-                data: [overall],
-                marker: {
-                    symbol: 'circle',
-                    fillColor: 'white',
-                    lineWidth: 2,
-                    lineColor: '#3090F0'
-                }
-            }],
             xAxis: {
                 categories: TestNames[subjectIndex],
                 title: {
@@ -144,15 +120,41 @@ function createCharts() {
                         }
                     }
                 }]
-            }
-        });
+            },
+            series: [{
+                name: 'Graph Points',
+                type: 'boxplot',
+                data: GraphPoints[subjectIndex],
+                maxPointWidth: 30,
+                fill: 'transparent'
+            }, {
+                name: 'Your Scores',
+                color: '#3090F0',
+                data: yourScores,
+                marker: {
+                    fillColor: 'white',
+                    lineWidth: 2,
+                    lineColor: '#3090F0'
+                }
+            }, {
+                name: 'Your Scores',
+                color: '#3090F0',
+                data: [overall],
+                marker: {
+                    symbol: 'circle',
+                    fillColor: 'white',
+                    lineWidth: 2,
+                    lineColor: '#3090F0'
+                }
+            }]
+        })
     }
     toggleTriggers()
 }
 
 const scrape = async () => {
     toggleTriggers()
-    await new Promise(res => setTimeout(res, 8000));
+    await new Promise(res => setTimeout(res, 8000))
     for (let i = 0; i < Highcharts.charts.length; i++) {
         const chart = Highcharts.charts[i]
         if (chart) {
@@ -177,8 +179,12 @@ const scrape = async () => {
                         else {
                             var testName = '<b>' + shortcut.firstChild.children[1].innerText + '</b>'
                         }
+                        var weightedScore = shortcut.children[2].firstChild.children[1].firstChild.innerText
+                        if (ExtraData[subjectIndex][2] == null) { ExtraData[subjectIndex][2] = 0 }
+
                         TestNames[subjectIndex].push(testName)
-                        ExtraData[subjectIndex].push(shortcut.children[2].firstChild.children[1].firstChild.innerText.replace('\nOut of ', '/'))
+                        ExtraData[subjectIndex][2] += parseFloat(weightedScore.split(' ')[2])
+                        ExtraData[subjectIndex].push(weightedScore.replace('\nOut of ', '/'))
                         GraphPoints[subjectIndex].push([scores.low, scores.q1, scores.median, scores.q3, scores.high])
                         YourPoints[subjectIndex].push(chart.xAxis[0].series[1].options.data[0])
                     }
