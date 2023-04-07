@@ -1,4 +1,4 @@
-//Chart 1.6
+//Chart 1.7
 const GraphPoints = []
 const YourPoints = []
 const TestNames = []
@@ -73,7 +73,7 @@ function createCharts() {
                         }
                         else {
                             progressGrade = ExtraData[subjectIndex][2]
-                            tooltip += '<br><b>Progress Grade:</b> ' + round(overall * progressGrade / 100) + '/' + progressGrade
+                            tooltip += '<br><b>Progress Grade:</b> ' + round(this.y * progressGrade / 100) + '/' + progressGrade
                             letterGrade = ExtraData[subjectIndex][1]
                             if (letterGrade != '') {
                                 tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
@@ -154,7 +154,20 @@ function createCharts() {
 
 const scrape = async () => {
     toggleTriggers()
-    await new Promise(res => setTimeout(res, 8000))
+    var loadingPhase1 = true
+    await new Promise((resolve) => {
+        const observer = new MutationObserver(() => {
+            const indicatorsLoaded = document.querySelectorAll('.v-loading-indicator').length > 2
+            if (indicatorsLoaded && loadingPhase1) {
+                loadingPhase1 = false
+            }
+            else if (!indicatorsLoaded && !loadingPhase1) {
+                observer.disconnect()
+                resolve()
+            }
+        })
+        observer.observe(document.body, { childList: true, subtree: true })
+    })
     for (let i = 0; i < Highcharts.charts.length; i++) {
         const chart = Highcharts.charts[i]
         if (chart) {
