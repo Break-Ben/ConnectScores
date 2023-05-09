@@ -1,4 +1,4 @@
-//Backup 1.2.1
+//Backup 1.3
 const Subjects = [{
     StudentName: Liferay.ThemeDisplay.getUserName(),
     DateRecorded: Date()
@@ -6,7 +6,20 @@ const Subjects = [{
 var triggers = document.getElementsByClassName('v-button-eds-c-accordion__trigger')
 for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
 const scrape = async () => {
-    await new Promise(res => setTimeout(res, 8000));
+    var loadingPhase1 = true
+    await new Promise((resolve) => {
+        const observer = new MutationObserver(() => {
+            const indicatorsLoaded = document.querySelectorAll('.v-loading-indicator').length > 2
+            if (indicatorsLoaded && loadingPhase1) {
+                loadingPhase1 = false
+            }
+            else if (!indicatorsLoaded && !loadingPhase1) {
+                observer.disconnect()
+                resolve()
+            }
+        })
+        observer.observe(document.body, { childList: true, subtree: true })
+    })
     Highcharts.charts.forEach(e => {
         if (e) {
             const scores = e.xAxis[0].series[0].data[0].options
