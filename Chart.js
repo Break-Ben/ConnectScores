@@ -1,4 +1,4 @@
-//Chart 1.7
+//Chart 1.8
 const GraphPoints = []
 const YourPoints = []
 const TestNames = []
@@ -6,9 +6,22 @@ const ExtraData = []
 
 let round = num => Math.round(num * 100) / 100
 
+let mean = array => round(array.reduce((sum, value) => sum + value, 0) / array.length)
+
 let toggleTriggers = () => {
     var triggers = document.getElementsByClassName('v-button-eds-c-accordion__trigger')
     for (let i = 0; i < triggers.length; i++) { triggers[i].click() }
+}
+
+function median(array) {
+    array = array.sort((a, b) => a - b)
+    var middle = Math.floor(array.length / 2)
+    if (array.length % 2 !== 0) {
+        return round(array[middle])
+    }
+    else {
+        return round((array[middle - 1] + array[middle]) / 2)
+    }
 }
 
 function injectCSS() {
@@ -29,9 +42,6 @@ function createCharts() {
 
         subjectName = ExtraData[subjectIndex][0]
         overall = YourPoints[subjectIndex][0]
-        median = GraphPoints[subjectIndex][0][2]
-        yourScores = YourPoints[subjectIndex]
-        yourScores[0] = null
 
         Highcharts.chart('overallChart' + subjectIndex, {
             title: {
@@ -60,24 +70,28 @@ function createCharts() {
                     if (this.series.index == 0) {
                         const points = this.point.options
                         return '<b>Highest Score:</b> ' + round(points.high)
-                            + '<br><b>Upper Quartile:</b> ' + round(points.q3)
-                            + '<br><b>Median:</b> ' + round(points.median)
-                            + '<br><b>Lower Quartile:</b> ' + round(points.q1)
-                            + '<br><b>Lowest Score:</b> ' + round(points.low)
+                            + '%<br><b>Upper Quartile:</b> ' + round(points.q3)
+                            + '%<br><b>Median Score:</b> ' + round(points.median)
+                            + '%<br><b>Lower Quartile:</b> ' + round(points.q1)
+                            + '%<br><b>Lowest Score:</b> ' + round(points.low) + '%'
                     }
                     else {
-                        tooltip = '<b>Your Score:</b> ' + this.y
                         weightedScoreIndex = this.series.yData.indexOf(this.y)
                         if (weightedScoreIndex != 0) {
+                            tooltip = '<b>Your Score:</b> ' + this.y + '%'
                             tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex + 2]
                         }
                         else {
-                            progressGrade = ExtraData[subjectIndex][2]
-                            tooltip += '<br><b>Progress Grade:</b> ' + round(this.y * progressGrade / 100) + '/' + progressGrade
+                            var scores = YourPoints[subjectIndex].slice(1)
+                            tooltip = '<b>Overall:</b> ' + this.y + '%'
+                            tooltip += '<br><b>Mean:</b> ' + mean(scores) + '%'
+                            tooltip += '<br><b>Median:</b> ' + median(scores) + '%'
                             letterGrade = ExtraData[subjectIndex][1]
                             if (letterGrade != '') {
                                 tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
                             }
+                            progressGrade = ExtraData[subjectIndex][2]
+                            tooltip += '<br><b>Progress:</b> ' + round(this.y * progressGrade / 100) + '/' + progressGrade
                         }
                         return tooltip
                     }
@@ -98,27 +112,15 @@ function createCharts() {
                 plotLines: [{
                     value: overall,
                     color: '#3090F0',
+                    dashStyle: 'Dash',
                     width: 1,
                     zIndex: 4,
-                    label: {
-                        text: 'Overall score: {overall}',
-                        align: 'center',
-                        style: {
-                            color: 'gray'
-                        }
-                    }
                 }, {
-                    value: median,
+                    value: GraphPoints[subjectIndex][0][2],
                     color: 'red',
+                    dashStyle: 'Dash',
                     width: 1,
                     zIndex: 4,
-                    label: {
-                        text: 'Median score: {median}',
-                        align: 'center',
-                        style: {
-                            color: 'gray'
-                        }
-                    }
                 }]
             },
             series: [{
@@ -130,7 +132,7 @@ function createCharts() {
             }, {
                 name: 'Your Scores',
                 color: '#3090F0',
-                data: yourScores,
+                data: [null, ...YourPoints[subjectIndex].slice(1)],
                 marker: {
                     fillColor: 'white',
                     lineWidth: 2,
