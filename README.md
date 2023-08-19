@@ -1,9 +1,13 @@
 # Connect Scores
-Scripts that improve connect's assessment outlines.  
-Paste them into the devtools console on [the assessment outlines page](https://connect.det.wa.edu.au/group/students/ui/my-settings/assessment-outlines) _(ctrl+shift+i or cmd+option+i)_
+Scripts that improve Connect's assessment outlines page.  
+Copy and paste them into the devtools console on [the assessment outlines page](https://connect.det.wa.edu.au/group/students/ui/my-settings/assessment-outlines) _(ctrl+shift+i or cmd+option+i)_
+
+![Screenshot 2023-08-19 180255](https://github.com/Break-Ben/ConnectScores/assets/80194912/03d782cd-cde0-44ec-85b3-07b7e586dddf)
+
+Note that these scripts run completely client-side, meaning they only access data that is already sent to your device.
 
 ## Scripts
-**[Chart](../main/Chart.js):** Creates new charts that automatically combine all test from a class into one. Also adds features like tooltips and exporting to images
+**[Chart](../main/Chart.js):** Creates new charts that automatically combine all tests from a class into one. Also adds features like tooltips and exporting to images
 
 **[Backup](../main/Backup.js):** Saves all data from all subjects into a single JSON file
 
