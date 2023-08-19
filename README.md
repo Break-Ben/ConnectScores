@@ -2,7 +2,7 @@
 Scripts that improve Connect's assessment outlines page.  
 Copy and paste them into the devtools console on [the assessment outlines page](https://connect.det.wa.edu.au/group/students/ui/my-settings/assessment-outlines) _(ctrl+shift+i or cmd+option+i)_
 
-![Screenshot 2023-08-19 180255](https://github.com/Break-Ben/ConnectScores/assets/80194912/03d782cd-cde0-44ec-85b3-07b7e586dddf)
+![Chart.js Example Image](https://github.com/Break-Ben/ConnectScores/assets/80194912/94e95cb7-3364-4a59-b502-356514be75e0)
 
 Note that these scripts run completely client-side, meaning they only access data that is already sent to your device.
 
