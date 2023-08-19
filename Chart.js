@@ -1,8 +1,11 @@
-//Chart 1.8
+//Chart 2.0
+const WeightedScores = []
 const GraphPoints = []
-const YourPoints = []
+const YourScores = []
+const YourMarks = []
 const TestNames = []
 const ExtraData = []
+const blue = '#3090F0'
 
 let round = num => Math.round(num * 100) / 100
 
@@ -41,7 +44,7 @@ function createCharts() {
     for (let subjectIndex = 0; subjectIndex < ExtraData.length; subjectIndex++) {
 
         subjectName = ExtraData[subjectIndex][0]
-        overall = YourPoints[subjectIndex][0]
+        overall = YourScores[subjectIndex][0]
 
         Highcharts.chart('overallChart' + subjectIndex, {
             title: {
@@ -59,7 +62,7 @@ function createCharts() {
             exporting: {
                 filename: subjectName,
                 sourceWidth: 1100,
-                sourceHeight: 400,
+                sourceHeight: 400
             },
             legend: {
                 enabled: false
@@ -76,16 +79,17 @@ function createCharts() {
                             + '%<br><b>Lowest Score:</b> ' + round(points.low) + '%'
                     }
                     else {
-                        weightedScoreIndex = this.series.yData.indexOf(this.y)
-                        if (weightedScoreIndex != 0) {
-                            tooltip = '<b>Your Score:</b> ' + this.y + '%'
-                            tooltip += '<br><b>Weighted Score:</b> ' + ExtraData[subjectIndex][weightedScoreIndex + 2]
+                        weightedScoreIndex = this.point.index - 1
+                        if (weightedScoreIndex != -1) {
+                            tooltip = '<b>Your Score:</b> ' + this.y
+                                + '%<br><b>Your Mark:</b> ' + YourMarks[subjectIndex][weightedScoreIndex]
+                                + '<br><b>Weighted Score:</b> ' + WeightedScores[subjectIndex][weightedScoreIndex]
                         }
                         else {
-                            var scores = YourPoints[subjectIndex].slice(1)
-                            tooltip = '<b>Overall:</b> ' + this.y + '%'
-                            tooltip += '<br><b>Mean:</b> ' + mean(scores) + '%'
-                            tooltip += '<br><b>Median:</b> ' + median(scores) + '%'
+                            var scores = YourScores[subjectIndex].slice(1)
+                            tooltip = '<b>Overall:</b> ' + this.y
+                                + '%<br><b>Mean:</b> ' + mean(scores)
+                                + '%<br><b>Median:</b> ' + median(scores) + '%'
                             letterGrade = ExtraData[subjectIndex][1]
                             if (letterGrade != '') {
                                 tooltip += '<br><b>Letter Grade:</b> ' + letterGrade
@@ -111,16 +115,16 @@ function createCharts() {
                 max: 100,
                 plotLines: [{
                     value: overall,
-                    color: '#3090F0',
+                    color: blue,
                     dashStyle: 'Dash',
                     width: 1,
-                    zIndex: 4,
+                    zIndex: 4
                 }, {
                     value: GraphPoints[subjectIndex][0][2],
                     color: 'red',
                     dashStyle: 'Dash',
                     width: 1,
-                    zIndex: 4,
+                    zIndex: 4
                 }]
             },
             series: [{
@@ -130,23 +134,22 @@ function createCharts() {
                 maxPointWidth: 30,
                 fill: 'transparent'
             }, {
-                name: 'Your Scores',
-                color: '#3090F0',
-                data: [null, ...YourPoints[subjectIndex].slice(1)],
-                marker: {
-                    fillColor: 'white',
-                    lineWidth: 2,
-                    lineColor: '#3090F0'
-                }
-            }, {
-                name: 'Your Scores',
-                color: '#3090F0',
+                name: 'Your Overall Score',
                 data: [overall],
                 marker: {
                     symbol: 'circle',
-                    fillColor: 'white',
                     lineWidth: 2,
-                    lineColor: '#3090F0'
+                    lineColor: blue,
+                    fillColor: 'white'
+                }
+            }, {
+                name: 'Your Scores',
+                color: blue,
+                data: [null, ...YourScores[subjectIndex].slice(1)],
+                marker: {
+                    lineWidth: 2,
+                    lineColor: blue,
+                    fillColor: 'white'
                 }
             }]
         })
@@ -181,7 +184,7 @@ const scrape = async () => {
                 ExtraData.push([shortcut.parentElement.parentElement.parentElement.parentElement.firstChild.innerText, chart.container.parentElement.parentElement.parentElement.firstChild.lastChild.innerText])
                 TestNames.push(['<b>Overall</b>'])
                 GraphPoints.push([[scores.low, scores.q1, scores.median, scores.q3, scores.high]])
-                YourPoints.push([chart.xAxis[0].series[1].options.data[0]])
+                YourScores.push([chart.xAxis[0].series[1].options.data[0]])
             }
             else {
                 const subjectName = shortcut.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.innerText
@@ -195,13 +198,19 @@ const scrape = async () => {
                             var testName = '<b>' + shortcut.firstChild.children[1].innerText + '</b>'
                         }
                         var weightedScore = shortcut.children[2].firstChild.children[1].firstChild.innerText
-                        if (ExtraData[subjectIndex][2] == null) { ExtraData[subjectIndex][2] = 0 }
+                        var mark = shortcut.children[2].firstChild.firstChild.firstChild.innerText
+                        if (YourMarks[subjectIndex] == null) {
+                            ExtraData[subjectIndex][2] = 0
+                            WeightedScores[subjectIndex] = []
+                            YourMarks[subjectIndex] = []
+                        }
 
                         TestNames[subjectIndex].push(testName)
                         ExtraData[subjectIndex][2] += parseFloat(weightedScore.split(' ')[2])
-                        ExtraData[subjectIndex].push(weightedScore.replace('\nOut of ', '/'))
+                        WeightedScores[subjectIndex].push(weightedScore.replace('\nOut of ', '/'))
+                        YourMarks[subjectIndex].push(mark.replace('\nOut of ', '/'))
                         GraphPoints[subjectIndex].push([scores.low, scores.q1, scores.median, scores.q3, scores.high])
-                        YourPoints[subjectIndex].push(chart.xAxis[0].series[1].options.data[0])
+                        YourScores[subjectIndex].push(chart.xAxis[0].series[1].options.data[0])
                     }
                 }
             }
