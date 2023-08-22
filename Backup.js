@@ -1,4 +1,4 @@
-//Backup 1.3
+//Backup 1.4
 const Subjects = [{
     StudentName: Liferay.ThemeDisplay.getUserName(),
     DateRecorded: Date()
@@ -20,15 +20,17 @@ const scrape = async () => {
         })
         observer.observe(document.body, { childList: true, subtree: true })
     })
-    Highcharts.charts.forEach(e => {
-        if (e) {
-            const scores = e.xAxis[0].series[0].data[0].options
-            const shortcut = e.container.parentElement.parentElement.parentElement.parentElement
+    Highcharts.charts.forEach(chart => {
+        if (chart) {
+            const scores = chart.xAxis[0].series[0].data[0].options
+            const shortcut = chart.container.closest('.cvr-c-task')
+            const children = shortcut.firstChild.children;
+            const subjectName = shortcut.closest('.eds-c-tile').firstChild.firstChild.innerText
             if (!shortcut.firstChild.innerText) {
-                Subjects.push([shortcut.parentElement.parentElement.parentElement.parentElement.firstChild.innerText, {
+                Subjects.push([subjectName, {
                     TestName: 'Overall',
-                    Score: e.xAxis[0].series[1].options.data[0],
-                    LetterGrade: e.container.parentElement.parentElement.parentElement.firstChild.lastChild.innerText,
+                    Score: chart.xAxis[0].series[1].options.data[0],
+                    LetterGrade: chart.container.closest('.cvr-c-task__achievement').firstChild.lastChild.innerText,
                     Minimum: scores.low,
                     Q1: scores.q1,
                     Median: scores.median,
@@ -37,14 +39,14 @@ const scrape = async () => {
                 }])
             }
             else {
-                const subjectName = shortcut.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.innerText
                 for (let i = 0; i < Subjects.length; i++) {
                     if (Subjects[i][0] == subjectName) {
-                        if (shortcut.firstChild.children[2]) { var testName = shortcut.firstChild.children[2].innerText + ' (' + shortcut.firstChild.children[1].innerText + ')' }
-                        else { var testName = shortcut.firstChild.children[1].innerText }
+                        if (children[2]) { var testName = children[2].innerText + ' (' + children[1].innerText + ')' }
+                        else { var testName = children[1].innerText }
                         Subjects[i].push({
                             TestName: testName,
-                            Score: e.xAxis[0].series[1].options.data[0],
+                            Score: chart.xAxis[0].series[1].options.data[0],
+                            Mark: shortcut.children[2].firstChild.firstChild.firstChild.innerText.replace('\nOut of ', '/'),
                             WeightedScore: shortcut.children[2].firstChild.children[1].firstChild.innerText.replace('\nOut of ', '/'),
                             Minimum: scores.low,
                             Q1: scores.q1,
@@ -59,7 +61,7 @@ const scrape = async () => {
     })
     var a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([JSON.stringify(Subjects, null, 4)], { type: 'text/plain' }))
-    a.download = 'Backup.json'
+    a.download = `Backup (${(new Date()).toISOString().split('T')[0]}).json`
     a.click()
     console.log(Subjects)
 }

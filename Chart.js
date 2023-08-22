@@ -1,4 +1,4 @@
-//Chart 2.0
+//Chart 2.1
 const WeightedScores = []
 const GraphPoints = []
 const YourScores = []
@@ -177,28 +177,26 @@ const scrape = async () => {
         const chart = Highcharts.charts[i]
         if (chart) {
             const scores = chart.xAxis[0].series[0].data[0].options
-            const shortcut = chart.container.parentElement.parentElement.parentElement.parentElement
-
+            const shortcut = chart.container.closest('.cvr-c-task')
+            const children = shortcut.firstChild.children;
+            const subjectName = shortcut.closest('.eds-c-tile').firstChild.firstChild.innerText
             if (!shortcut.firstChild.innerText) {
-                shortcut.parentElement.parentElement.parentElement.parentElement.id = 'overallChart' + i
-                ExtraData.push([shortcut.parentElement.parentElement.parentElement.parentElement.firstChild.innerText, chart.container.parentElement.parentElement.parentElement.firstChild.lastChild.innerText])
+                shortcut.closest('.eds-c-tile').id = 'overallChart' + i
+                ExtraData.push([subjectName, chart.container.closest('.cvr-c-task__achievement').firstChild.lastChild.innerText])
                 TestNames.push(['<b>Overall</b>'])
                 GraphPoints.push([[scores.low, scores.q1, scores.median, scores.q3, scores.high]])
                 YourScores.push([chart.xAxis[0].series[1].options.data[0]])
             }
             else {
-                const subjectName = shortcut.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.innerText
-
                 for (let subjectIndex = 0; subjectIndex < ExtraData.length; subjectIndex++) {
                     if (ExtraData[subjectIndex][0] == subjectName) {
-                        if (shortcut.firstChild.children[2]) {
-                            var testName = '<b>' + shortcut.firstChild.children[2].innerText + '</b> (' + shortcut.firstChild.children[1].innerText + ')'
+                        if (children[2]) {
+                            var testName = '<b>' + children[2].innerText + '</b> (' + children[1].innerText + ')'
                         }
                         else {
-                            var testName = '<b>' + shortcut.firstChild.children[1].innerText + '</b>'
+                            var testName = '<b>' + children[1].innerText + '</b>'
                         }
                         var weightedScore = shortcut.children[2].firstChild.children[1].firstChild.innerText
-                        var mark = shortcut.children[2].firstChild.firstChild.firstChild.innerText
                         if (YourMarks[subjectIndex] == null) {
                             ExtraData[subjectIndex][2] = 0
                             WeightedScores[subjectIndex] = []
@@ -208,7 +206,7 @@ const scrape = async () => {
                         TestNames[subjectIndex].push(testName)
                         ExtraData[subjectIndex][2] += parseFloat(weightedScore.split(' ')[2])
                         WeightedScores[subjectIndex].push(weightedScore.replace('\nOut of ', '/'))
-                        YourMarks[subjectIndex].push(mark.replace('\nOut of ', '/'))
+                        YourMarks[subjectIndex].push(shortcut.children[2].firstChild.firstChild.firstChild.innerText.replace('\nOut of ', '/'))
                         GraphPoints[subjectIndex].push([scores.low, scores.q1, scores.median, scores.q3, scores.high])
                         YourScores[subjectIndex].push(chart.xAxis[0].series[1].options.data[0])
                     }
