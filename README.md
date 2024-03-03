@@ -1,3 +1,4 @@
+> Disclaimer: This project will no longer be maintained by myself as I no longer have access to Connect
 # Connect Scores
 Scripts that improve Connect's assessment outlines page.  
 Copy and paste them into the devtools console on [the assessment outlines page](https://connect.det.wa.edu.au/group/students/ui/my-settings/assessment-outlines) _(ctrl+shift+i or cmd+option+i)_
